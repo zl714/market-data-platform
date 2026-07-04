@@ -26,36 +26,36 @@ The platform has three cooperating subsystems:
 ```mermaid
 flowchart TD
     subgraph Exchanges
-        P[Polymarket WS]
-        K[Kalshi WS - RSA/PSS auth]
-        B[Binance / Bybit / HyperLiquid / Deribit WS + REST]
+        P["Polymarket WS"]
+        K["Kalshi WS (RSA-PSS auth)"]
+        B["Binance, Bybit, HyperLiquid, Deribit WS + REST"]
     end
 
-    subgraph FeedLayer[Hardened Feed Layer]
-        R[N WebSocket replicas per venue]
-        H[6-layer hardening:<br/>warmup, multi-replica dedup,<br/>stale-tick guard, first-tick skip,<br/>stagger, jitter cull]
-        C[(Thread-safe price cache<br/>keyed by match_key)]
+    subgraph FeedLayer["Hardened Feed Layer"]
+        R["N WebSocket replicas per venue"]
+        H["6-layer hardening - warmup, multi-replica dedup, stale-tick guard, first-tick skip, stagger, jitter cull"]
+        C[("Thread-safe price cache keyed by match_key")]
         R --> H --> C
     end
 
-    subgraph Orchestrator[Arb Orchestrator]
-        M[Fetch + match market pairs]
-        U[on_price_update callback]
-        D[Detect / size / paper-fill]
+    subgraph Orchestrator["Arb Orchestrator"]
+        M["Fetch + match market pairs"]
+        U["on_price_update callback"]
+        D["Detect, size, paper-fill"]
     end
 
-    subgraph Collector[WS Tracker v2]
-        F16[16 concurrent async feeds]
-        WD[Watchdog + safe_recv]
-        CSV[(CSV event streams)]
+    subgraph Collector["WS Tracker v2"]
+        F16["16 concurrent async feeds"]
+        WD["Watchdog + safe_recv"]
+        CSV[("CSV event streams")]
     end
 
     subgraph Persistence
-        SQL[(SQLite: matches,<br/>arb_trades, resolutions)]
+        SQL[("SQLite - matches, arb_trades, resolutions")]
     end
 
-    subgraph Research[Offline Research Pipeline]
-        DL[download] --> BF[build_features] --> AU[audit: 53 checks] --> BT[backtest via @strategy registry]
+    subgraph Research["Offline Research Pipeline"]
+        DL["download"] --> BF["build_features"] --> AU["audit - 53 checks"] --> BT["backtest via strategy registry"]
     end
 
     P --> R
